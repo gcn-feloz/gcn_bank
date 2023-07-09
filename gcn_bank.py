@@ -1,4 +1,3 @@
-
 from time import sleep
 
 opções = ['Sair','Extrato','Saque','Deposito']
@@ -6,11 +5,13 @@ opções = ['Sair','Extrato','Saque','Deposito']
 saldo = 0
 extrato = []
 
+delay = 0.2 # ALTERE O DELAY DE IMPRESSÃO PARA MAIOR CONFORTO VISUAL, TEMPO EXPRESSO EM FRAÇÃO DE SEGUNDOS. ex.: 1= 1 segundo, 0.5= meio segundo.
+
 ## operações de saque
 limite_saques_diario = 3
 limite_valor_saque = 500
 
-def transição(txt='', tempo=.9, qnt=1):
+def transição(txt='', tempo=delay, qnt=1):
     for y in range(2):
         for x in range(qnt):
             print()
@@ -25,9 +26,6 @@ def deposito(valor):
     extrato.append(valor)
     define_saldo()
 
-  
-
-
 def saque(valor):
     valor = float(valor)
     global limite_saques_diario
@@ -37,13 +35,19 @@ def saque(valor):
     define_saldo()
     limite_saques_diario -= 1
 
-
 def valida(valor):
+    global entrada
     try:
-        valor = float(valor)
+        valor = round(float(valor), 2)
         if valor > 0:
+            entrada = valor
             return True
+        else:
+            transição(f"⛔ [Você digitou um valor inválido: {valor:.2f}] ⛔")
+            transição("⚠️ [Digite um valor MAIOR QUE ZERO.] ⚠️")
     except:
+        transição(f"⛔ [Você digitou um valor inválido: {valor}] ⛔")
+        transição("⚠️ [Digite um valor válido.] ⚠️")
         return False
 
 def define_saldo():
@@ -55,12 +59,14 @@ def define_saldo():
 def valida_operação(valor):
     global saldo
     transição(" 📝 [Validando transação...] 📝")
+    
     if valida(valor):
         valor = float(valor)
     else:
         transição(f"⛔ [Você digitou um valor inválido: {valor}] ⛔")
         transição("⚠️ [Digite um valor válido.] ⚠️")
         return False
+    
     if limite_saques_diario == 0:
         transição("⛔ [Você excedeu o limite de [3] saques diarios.] ⛔")
         transição("⚠️ [Tente novamente amanhã.] ⚠️")
@@ -78,49 +84,51 @@ def valida_operação(valor):
 
 def cabeçalho(txt, sep = '-', esp = 5):
     print(sep*(len(txt)+esp))
+    sleep(delay)
     print(txt.center(len(txt)+esp))
+    sleep(delay)
     print(sep*(len(txt)+esp))
-
-def limpa_tela(intervalo=0.5):
-    print('\n'*25)
-    sleep(intervalo)
+    sleep(delay)
 
 transição(" 🔐 [Entrando na conta...] 🔐")
 transição("🔓 Seja bem-vindo ao gcn_Bank! 🔓")
 
 while True:
-    cabeçalho("_.gcn_Bank!", esp=12)
-    sleep(.5)
+    cabeçalho("_.gcn_Bank!", esp=12)    
     cabeçalho(f"[Saldo]: R${saldo:.2f}")
-    sleep(.5)
+    
     for pos, val in enumerate(opções):
         print(f'[{pos}] - {val}')
-        sleep(.5)
-    print('-'*20)
+        sleep(delay)
+    print('-'*30)
 
     entrada = input("Digite uma opção: ")
     
     if entrada == '0':
         print(opções[0])
         print("saindo...")
-        sleep(1)
+        sleep(delay)
         print("Obrigado por usar nossos serviços.")
-        sleep(1)
+        sleep(delay)
         print("Volte sempre!")
-        sleep(1)
+        sleep(delay)
         for x in range(3,0,-1):
             print(f'{x}...')
-            sleep(1)
+            sleep(delay)
         break
 
     if entrada == '1':
         transição("Extrato selecionado...")
         cabeçalho(f'🧾 {opções[1]} 🧾', esp=16)
         if len(extrato) > 0:
-            print("|op.| ------ | valor |")
+            print("|op.| - |tipo| -- | valor |")
             for pos, val in enumerate(extrato):
-                print(f'[{pos:^3}] ------ R${val:<8.2f}')
-                sleep(.5)
+                if val < 0:
+                    dep_ou_saq = "Saq."
+                else:
+                    dep_ou_saq = "Dep."
+                print(f'|{pos:^3}| - |{dep_ou_saq:^4}| -- R$ {val:<10.2f}')
+                sleep(delay)
             cabeçalho(f"Saldo: R${saldo:.2f}", esp = 12)
         else:
             print("Não há movimentações".center(27))
@@ -131,14 +139,13 @@ while True:
         while True:
             if input() == '':
                 break
-       ## transição()
 
     if entrada == '2':
         transição("Opção de Saque Selecionado...")
         cabeçalho(('💸 '+opções[2]+' 💸'),esp=35)
-        print(f"Saques rest.: [{limite_saques_diario}]      R$-max/saque: [{limite_valor_saque}]")
+        print(f"Saques rest.: [{limite_saques_diario}]      R$-max/saque: [{limite_valor_saque:.2f}]")
         print('-'*44)
-        sleep(.5)
+        sleep(delay)
         entrada = input("Digite o valor a ser sacado: R$")
         if valida_operação(entrada):
             saque(entrada)
