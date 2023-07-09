@@ -5,7 +5,7 @@ opções = ['Sair','Extrato','Saque','Deposito']
 saldo = 0
 extrato = []
 
-delay = 0.2 # ALTERE O DELAY DE IMPRESSÃO PARA MAIOR CONFORTO VISUAL, TEMPO EXPRESSO EM FRAÇÃO DE SEGUNDOS. ex.: 1= 1 segundo, 0.5= meio segundo.
+delay = 0.6 # ALTERE O DELAY DE IMPRESSÃO PARA MAIOR CONFORTO VISUAL, TEMPO EXPRESSO EM FRAÇÃO DE SEGUNDOS. ex.: 1= 1 segundo, 0.5= meio segundo.
 
 ## operações de saque
 limite_saques_diario = 3
