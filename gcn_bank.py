@@ -5,7 +5,7 @@ opções = ['Sair','Extrato','Saque','Deposito']
 saldo = 0
 extrato = []
 
-delay = 0.6 # ALTERE O DELAY DE IMPRESSÃO PARA MAIOR CONFORTO VISUAL, TEMPO EXPRESSO EM FRAÇÃO DE SEGUNDOS. ex.: 1= 1 segundo, 0.5= meio segundo.
+delay = 0.2 # ALTERE O DELAY DE IMPRESSÃO PARA MAIOR CONFORTO VISUAL, TEMPO EXPRESSO EM FRAÇÃO DE SEGUNDOS. ex.: 1= 1 segundo, 0.5= meio segundo.
 
 ## operações de saque
 limite_saques_diario = 3
@@ -35,7 +35,7 @@ def saque(valor):
     define_saldo()
     limite_saques_diario -= 1
 
-def valida(valor):
+"""def valida(valor):
     global entrada
     try:
         valor = round(float(valor), 2)
@@ -48,7 +48,50 @@ def valida(valor):
     except:
         transição(f"⛔ [Você digitou um valor inválido: {valor}] ⛔")
         transição("⚠️ [Digite um valor válido.] ⚠️")
-        return False
+        return False"""
+
+def recebe_e_verifica(txt, valida):
+    ## recebe_e_verifica(txt, função_sem_argumentos) Não coloque o argumento pois o mesmo será preenchido pela função, quando verificar a condição.
+    while True:
+        entrada = input(f"{txt}")
+        retorno =  valida(entrada)
+        if retorno[0]:
+            return True, retorno[1]
+            
+
+def valida_int(entrada): ## Verifica se a entrada é uma int Valida.
+     try:
+          entrada = int(entrada)
+          return True, int(entrada)
+     except:
+          print(" ⛔ Digite um valor inteiro válido. ⛔ ")
+          return False, 0
+
+def valida_float(entrada): ## Verifica se a entrada é uma float valida.
+    try:
+        entrada = float(entrada)
+        if entrada > 0:
+            return True, float(entrada)
+        else:
+            transição(f"⛔ [Você digitou um valor inválido: {entrada:.2f}] ⛔")
+            transição("⚠️ [Digite um valor MAIOR QUE ZERO.] ⚠️")
+            raise Exception
+    except:
+        transição(f"⛔ [Você digitou um valor inválido: {entrada}] ⛔")
+        transição("⚠️ [Digite um valor válido.] ⚠️")
+        return False, 0
+
+def valida_nome(entrada): ## vai validar qualquer entrada que seja Letras e Espaços, qualquer coisa fora disso é retorna False.
+    try:
+        for x in entrada[:]:
+            if not (x.isalpha() or x.isspace()):
+                raise Exception
+        return True, entrada
+    except:
+        print(" ⛔ Digite um nome válido. ⛔")
+        return False, 0
+
+
 
 def define_saldo():
     global saldo
@@ -60,12 +103,6 @@ def valida_operação(valor):
     global saldo
     transição(" 📝 [Validando transação...] 📝")
     
-    if valida(valor):
-        valor = float(valor)
-    else:
-        transição(f"⛔ [Você digitou um valor inválido: {valor}] ⛔")
-        transição("⚠️ [Digite um valor válido.] ⚠️")
-        return False
     
     if limite_saques_diario == 0:
         transição("⛔ [Você excedeu o limite de [3] saques diarios.] ⛔")
@@ -90,6 +127,55 @@ def cabeçalho(txt, sep = '-', esp = 5):
     print(sep*(len(txt)+esp))
     sleep(delay)
 
+def exibe_extrato():
+    transição("Extrato selecionado...")
+    cabeçalho(f'🧾 {opções[1]} 🧾', esp=16)
+    if len(extrato) > 0:
+        print("|op.| - |tipo| -- | valor |")
+        for pos, val in enumerate(extrato):
+            if val < 0:
+                dep_ou_saq = "Saq."
+            else:
+                dep_ou_saq = "Dep."
+            print(f'|{pos:^3}| - |{dep_ou_saq:^4}| -- R$ {val:<10.2f}')
+            sleep(delay)
+        cabeçalho(f"Saldo: R${saldo:.2f}", esp = 12)
+    else:
+        print("Não há movimentações".center(27))
+        print("para exibir no extrato.".center(27))
+        print('-'*27)
+    print()
+    print("Pressione [Enter] para sair do extrato:")
+    while True:
+        if input() == '':
+            break
+
+cliente = [{'nome':'s','data_nascimento':'a','cpf':'654654654654','endereço':'Endereço completo'},]
+
+logradouro = str()
+numero_residencia = str()
+bairro = str()
+cidade = str()
+unidade_federativa = str()
+endereço_completo = f"{logradouro}, {numero_residencia}, {bairro} - {cidade}-{unidade_federativa}"
+
+
+def cadastra_usuario():
+    novo_user = {}
+    
+    while True:
+        entrada = input("Digite apenas o primeiro nome:").upper().strip()
+        if entrada.isalpha():
+            novo_user['nome'] = entrada
+            break
+    
+    while True:
+        entrada = input("Digite o sobrenome:").upper().strip()
+
+
+
+
+
 transição(" 🔐 [Entrando na conta...] 🔐")
 transição("🔓 Seja bem-vindo ao gcn_Bank! 🔓")
 
@@ -102,9 +188,10 @@ while True:
         sleep(delay)
     print('-'*30)
 
-    entrada = input("Digite uma opção: ")
+    retorno = recebe_e_verifica("Digite uma opção: ", valida_int)
     
-    if entrada == '0':
+
+    if retorno[1] == 0:
         print(opções[0])
         print("saindo...")
         sleep(delay)
@@ -117,45 +204,31 @@ while True:
             sleep(delay)
         break
 
-    if entrada == '1':
-        transição("Extrato selecionado...")
-        cabeçalho(f'🧾 {opções[1]} 🧾', esp=16)
-        if len(extrato) > 0:
-            print("|op.| - |tipo| -- | valor |")
-            for pos, val in enumerate(extrato):
-                if val < 0:
-                    dep_ou_saq = "Saq."
-                else:
-                    dep_ou_saq = "Dep."
-                print(f'|{pos:^3}| - |{dep_ou_saq:^4}| -- R$ {val:<10.2f}')
-                sleep(delay)
-            cabeçalho(f"Saldo: R${saldo:.2f}", esp = 12)
-        else:
-            print("Não há movimentações".center(27))
-            print("para exibir no extrato.".center(27))
-            print('-'*27)
-        print()
-        print("Pressione [Enter] para sair do extrato:")
-        while True:
-            if input() == '':
-                break
+    if retorno[1] == 1:
+        exibe_extrato()
 
-    if entrada == '2':
+    if retorno[1] == 2:
         transição("Opção de Saque Selecionado...")
         cabeçalho(('💸 '+opções[2]+' 💸'),esp=35)
         print(f"Saques rest.: [{limite_saques_diario}]      R$-max/saque: [{limite_valor_saque:.2f}]")
         print('-'*44)
         sleep(delay)
-        entrada = input("Digite o valor a ser sacado: R$")
-        if valida_operação(entrada):
-            saque(entrada)
+        ##entrada = input("Digite o valor a ser sacado: R$")
+        retorno = recebe_e_verifica("Digite o valor a ser sacado: R$", valida_float)
+        if retorno[0]:
+            if valida_operação(retorno[1]):
+                saque(retorno[1])
+        
+        
+        ##if valida_operação(entrada):
+           ## saque(entrada)
 
-    if entrada == '3':
+    if retorno[1] == 3:
         transição("Opção de Deposito Selecionado...")
         cabeçalho((f"💰 {opções[3]} 💰"),esp=30)
-        entrada = input("Digite o valor a ser depositado: R$")
-        if valida(entrada):
-            deposito(entrada)
+        retorno = recebe_e_verifica("Digite o valor a ser depositado: R$", valida_float)
+        if retorno[0]:
+            deposito(retorno[1])
             
 
 
